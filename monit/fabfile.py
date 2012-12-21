@@ -18,11 +18,13 @@ def installed():
 def install():
   if not is_installed():
     apt.apt_install("monit")
+    update_config()
+    restart()
   else:
     print "%s already installed" % name
 
 @task
-def update_configuration():
+def update_config():
   put("resources/monitrc", "/etc/monit", use_sudo=True)
   sudo("chown root:root /etc/monit/monitrc")
 

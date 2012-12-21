@@ -1,11 +1,13 @@
 from fabric.api import *
 
-from burlap import util
+from burlap import apt,util
 
 @task
 def setup():
-  sudo("apt-get install python-software-properties")
-  sudo("apt-get install git")
+  apt.apt_update()
+  apt.apt_install("python-software-properties")
+  apt.apt_install("git")
+  apt.apt_install("gcc g++")
 
 @task
 def run_cmd(cmd):
