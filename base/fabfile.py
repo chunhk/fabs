@@ -6,6 +6,7 @@ from burlap import apt,util
 def setup():
   apt.apt_update()
   apt.apt_install("python-software-properties")
+  apt.apt_install("python-virtualenv")
   apt.apt_install("git")
   apt.apt_install("gcc g++")
 
