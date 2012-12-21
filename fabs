@@ -1,0 +1,6 @@
+#!/bin/bash
+
+FAB=$1
+shift
+
+cd $FAB && fab $@
