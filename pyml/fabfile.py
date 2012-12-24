@@ -1,6 +1,8 @@
-from functools import partial
 import hashlib
 import os
+
+from functools import partial
+from string import Template as StringTemplate
 
 from fabric.api import *
 from fabric.contrib import files
@@ -99,10 +101,11 @@ http://ipython.org/ipython-doc/dev/interactive/htmlnotebook.html
 http://ipython.org/ipython-doc/dev/install/install.html#installnotebook
 """
 
-ipython_nb_root = "$HOME/ipython_notebook"
+ipython_nb_root = "$HOME/.ipython_nb"
 ipython_nb_pid = "%s/pid" % ipython_nb_root
+ipython_nb_cert = "%s/mycert.pem" % ipython_nb_root
 ipython_nb_log = "%s/log" % ipython_nb_root
-ipython_nb_notebook_path = "%s/notebooks" % ipython_nb_root
+ipython_nb_notebook_path = "$HOME/ipython_notebooks"
 ipython_nb_start = "$HOME/bin/start_ipython_notebook"
 ipython_nb_stop = "$HOME/bin/stop_ipython_notebook"
 
@@ -142,11 +145,19 @@ def configure_ipython_notebook(virtualenv=VIRTUAL_ENV):
   ipython_config = "$HOME/.ipython/profile_nbserver/ipython_notebook_config.py"
   if not files.exists(ipython_config):
     home_path = util.home_path()
+    run("openssl req -x509 -nodes -days 1095 -newkey rsa:1024 -keyout %s -out %s" % (ipython_nb_cert, ipython_nb_cert))
     run("%s/bin/ipython profile create nbserver" % virtualenv)
     run("echo \"c.IPKernelApp.pylab = 'inline'\" >> %s" % ipython_config)
+
+    run("echo \"c.NotebookApp.certfile = u'%s'\" >> %s" % \
+        (StringTemplate(ipython_nb_cert).substitute(HOME=home_path), \
+        ipython_config))
+
     run("echo \"c.NotebookApp.ip = '*'\" >> %s" % ipython_config)
     run("echo \"c.NotebookApp.open_browser = False\" >> %s" % ipython_config)
-    run("echo \"c.NotebookManager.notebook_dir = u'%s/ipython_notebook/notebooks'\" >> %s" % (home_path, ipython_config))
+    run("echo \"c.NotebookManager.notebook_dir = u'%s'\" >> %s" % \
+        (StringTemplate(ipython_nb_notebook_path).substitute(HOME=home_path), \
+        ipython_config))
 
 @task
 def ipython_start(virtualenv=VIRTUAL_ENV):
