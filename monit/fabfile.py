@@ -1,10 +1,16 @@
 from functools import partial
+import os
 
 from fabric.api import *
 from fabric.contrib import files
 
-from burlap import apt, util
+from burlap import util
+from burlap.apt import Apt
 
+
+RESOURCE_PATH = os.path.dirname(os.path.realpath(__file__)) + "/resources"
+
+apt = Apt(RESOURCE_PATH)
 name = "monit"
 
 @task
@@ -25,7 +31,7 @@ def install():
 
 @task
 def update_config():
-  put("resources/monitrc", "/etc/monit", use_sudo=True)
+  put(RESOURCE_PATH + "/monitrc", "/etc/monit", use_sudo=True)
   sudo("chown root:root /etc/monit/monitrc")
 
 @task

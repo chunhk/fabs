@@ -1,9 +1,16 @@
+import os
+
 from functools import partial
 
 from fabric.api import *
 from fabric.contrib import files
 
-from burlap import apt, util
+from burlap import util
+from burlap.apt import Apt
+
+
+RESOURCE_PATH = os.path.dirname(os.path.realpath(__file__)) + "/resources"
+apt = Apt(RESOURCE_PATH)
 
 name = "r"
 apt_repo_file = "cran.list"

@@ -1,0 +1,2 @@
+nohup {{ virtualenv }}/bin/ipython notebook --profile=nbserver --port {{ port }} &> {{ logfile }} &
+echo $! > {{ pidfile }}

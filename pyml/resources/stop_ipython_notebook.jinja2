@@ -1,0 +1,3 @@
+PID=`cat {{ pidfile }}`
+kill $PID
+rm {{ pidfile }}

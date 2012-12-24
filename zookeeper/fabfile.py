@@ -1,10 +1,17 @@
+import os
+
 from functools import partial
 
 from fabric.api import *
 from fabric.contrib import files
 
-from burlap import apt, util
+from burlap import util
+from burlap.apt import Apt
 
+
+RESOURCE_PATH = os.path.dirname(os.path.realpath(__file__)) + "/resources"
+
+apt = Apt(RESOURCE_PATH)
 name = "zookeeper"
 apt_repo_file = "cloudera.list"
 
@@ -40,7 +47,7 @@ def install():
 
 @task
 def update_config():
-  util.alt_put("resources/zoo.cfg", "/etc/zookeeper", use_sudo=True, owner="root", group="root")
+  util.alt_put(RESOURCE_PATH + "/zoo.cfg", "/etc/zookeeper", use_sudo=True, owner="root", group="root")
 
 @task
 def status():
