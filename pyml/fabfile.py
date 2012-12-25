@@ -134,12 +134,13 @@ def setup_ipython_nb_paths():
 
 def setup_ipython_scripts(virtualenv=VIRTUAL_ENV, port=8987):
   util.put_template(RESOURCE_PATH + "/start_ipython_notebook.jinja2", \
-      {"virtualenv": virtualenv, "port": port, \
+      variables={"virtualenv": virtualenv, "port": port, \
       "logfile": ipython_nb_log, "pidfile": ipython_nb_pid}, \
-      ipython_nb_start, permissions="+x")
+      destination=ipython_nb_start, permissions="+x")
 
   util.put_template(RESOURCE_PATH + "/stop_ipython_notebook.jinja2", \
-      {"pidfile": ipython_nb_pid}, ipython_nb_stop, permissions="+x")
+      variables={"pidfile": ipython_nb_pid}, destination=ipython_nb_stop, \
+      permissions="+x")
 
 def configure_ipython_notebook(virtualenv=VIRTUAL_ENV):
   ipython_config = "$HOME/.ipython/profile_nbserver/ipython_notebook_config.py"
@@ -158,6 +159,15 @@ def configure_ipython_notebook(virtualenv=VIRTUAL_ENV):
     run("echo \"c.NotebookManager.notebook_dir = u'%s'\" >> %s" % \
         (StringTemplate(ipython_nb_notebook_path).substitute(HOME=home_path), \
         ipython_config))
+
+    python_path = StringTemplate(virtualenv + "/bin/python").substitute( \
+        HOME=home_path)
+    ipython_config_path = StringTemplate(ipython_config).substitute( \
+        HOME=home_path)
+
+    util.run_template(RESOURCE_PATH + "/ipython_passwd.py", \
+        variables={"python_path": python_path, \
+        "ipython_config": ipython_config_path})
 
 @task
 def ipython_start(virtualenv=VIRTUAL_ENV):
