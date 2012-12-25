@@ -1,19 +1,19 @@
 import hashlib
 import os
 
+from burlap import util
+from burlap.apt import Apt
+from fabric.api import *
+from fabric.contrib import files
 from functools import partial
 from string import Template as StringTemplate
 
-from fabric.api import *
-from fabric.contrib import files
-
-from burlap import util
-from burlap.apt import Apt
 
 VIRTUAL_ENV = "$HOME/pyml"
 RESOURCE_PATH = os.path.dirname(os.path.realpath(__file__)) + "/resources"
 
 apt = Apt(RESOURCE_PATH)
+
 
 @task
 def install_all(virtualenv=VIRTUAL_ENV, upgrade=False):
@@ -28,33 +28,39 @@ def install_all(virtualenv=VIRTUAL_ENV, upgrade=False):
   install_ipython(virtualenv, upgrade)
   install_ipython_notebook(virtualenv, upgrade)
 
+
 @task
 def is_virtualenv_installed(virtualenv=VIRTUAL_ENV):
   if virtualenv_installed():
     print "virtual env exists: ", VIRTUAL_ENV
-    return true
+    return True
   else:
     print "virtual env does not exist: ", VIRTUAL_ENV
-    return false
+    return False
+
 
 @task
 def install_virtualenv(virtualenv=VIRTUAL_ENV):
-  if not virtualenv_installed():
+  if not is_virtualenv_installed():
     run("virtualenv %s" % VIRTUAL_ENV)
     pip_install(virtualenv, "pip", upgrade=True)
+
 
 @task
 def installed_site_packages(virtualenv=VIRTUAL_ENV):
   pip(virtualenv, "freeze")
+
  
 @task
 def install_base(virtualenv=VIRTUAL_ENV):
   apt.apt_install("gcc g++ python-dev")
 
+
 @task
 def install_numpy(virtualenv=VIRTUAL_ENV, upgrade=False):
   install_base()
   pip_install(virtualenv, "numpy", upgrade=upgrade)
+
 
 @task
 def install_scipy(virtualenv=VIRTUAL_ENV, upgrade=False):
@@ -62,15 +68,18 @@ def install_scipy(virtualenv=VIRTUAL_ENV, upgrade=False):
   apt.apt_install("libblas-dev liblapack-dev libatlas-dev gfortran")
   pip_install(virtualenv, "scipy", upgrade=upgrade)
 
+
 @task
 def install_pandas(virtualenv=VIRTUAL_ENV, upgrade=False):
   install_base()
   pip_install(virtualenv, "pandas", upgrade=upgrade)
 
+
 @task
 def install_statsmodels(virtualenv=VIRTUAL_ENV, upgrade=False):
   install_base()
   pip_install(virtualenv, "statsmodels", upgrade=upgrade)
+
 
 @task
 def install_pytables(virtualenv=VIRTUAL_ENV, upgrade=False):
@@ -80,10 +89,12 @@ def install_pytables(virtualenv=VIRTUAL_ENV, upgrade=False):
   pip_install(virtualenv, "cython", upgrade=upgrade)
   pip_install(virtualenv, "tables", upgrade=upgrade)
 
+
 @task
 def install_scikit_learn(virtualenv=VIRTUAL_ENV, upgrade=False):
   install_base()
   pip_install(virtualenv, "scikit-learn", upgrade=upgrade)
+
 
 @task
 def install_matplotlib(virtualenv=VIRTUAL_ENV, upgrade=False):
@@ -91,9 +102,11 @@ def install_matplotlib(virtualenv=VIRTUAL_ENV, upgrade=False):
   apt.apt_install("libfreetype6 libfreetype6-dev libpng12-0 libpng12-dev")
   pip_install(virtualenv, "matplotlib", upgrade=upgrade)
 
+
 @task
 def install_ipython(virtualenv=VIRTUAL_ENV, upgrade=False):
   pip_install(virtualenv, "ipython", upgrade=upgrade)
+
 
 """
 IPython Notebook
@@ -119,6 +132,7 @@ def install_ipython_notebook(virtualenv=VIRTUAL_ENV, upgrade=False):
   setup_ipython_scripts(virtualenv)
   configure_ipython_notebook()
 
+
 def install_ipython_mathjax(virtualenv=VIRTUAL_ENV):
   script = "from IPython.external.mathjax import install_mathjax\ninstall_mathjax()"
   h = hashlib.md5()
@@ -127,20 +141,23 @@ def install_ipython_mathjax(virtualenv=VIRTUAL_ENV):
   run("printf \"%s\" > %s" % (script,scriptname))
   run("%s/bin/python %s" % (virtualenv, scriptname))
 
+
 def setup_ipython_nb_paths():
   with settings(warn_only=True):
     run("mkdir %s" % ipython_nb_root)
     run("mkdir %s" % ipython_nb_notebook_path)
 
+
 def setup_ipython_scripts(virtualenv=VIRTUAL_ENV, port=8987):
-  util.put_template(RESOURCE_PATH + "/start_ipython_notebook.jinja2", \
+  util.remote_template(RESOURCE_PATH + "/start_ipython_notebook.jinja2", \
       variables={"virtualenv": virtualenv, "port": port, \
       "logfile": ipython_nb_log, "pidfile": ipython_nb_pid}, \
-      destination=ipython_nb_start, permissions="+x")
+      dest_file=ipython_nb_start, permissions="+x")
 
-  util.put_template(RESOURCE_PATH + "/stop_ipython_notebook.jinja2", \
-      variables={"pidfile": ipython_nb_pid}, destination=ipython_nb_stop, \
+  util.remote_template(RESOURCE_PATH + "/stop_ipython_notebook.jinja2", \
+      variables={"pidfile": ipython_nb_pid}, dest_file=ipython_nb_stop, \
       permissions="+x")
+
 
 def configure_ipython_notebook(virtualenv=VIRTUAL_ENV):
   ipython_config = "$HOME/.ipython/profile_nbserver/ipython_notebook_config.py"
@@ -165,17 +182,20 @@ def configure_ipython_notebook(virtualenv=VIRTUAL_ENV):
     ipython_config_path = StringTemplate(ipython_config).substitute( \
         HOME=home_path)
 
-    util.run_template(RESOURCE_PATH + "/ipython_passwd.py", \
+    util.run_remote_template(RESOURCE_PATH + "/ipython_passwd.py", \
         variables={"python_path": python_path, \
         "ipython_config": ipython_config_path})
+
 
 @task
 def ipython_start(virtualenv=VIRTUAL_ENV):
   run(ipython_nb_start, pty=False)
 
+
 @task
 def ipython_stop(virtualenv=VIRTUAL_ENV):
   run(ipython_nb_stop)
+
 
 @task
 def ipython_status(virtualenv=VIRTUAL_ENV):
@@ -189,8 +209,10 @@ Helper Functions
 def virtualenv_installed(virtualenv=VIRTUAL_ENV):
   return files.exists("%s/bin/activate" % virtualenv)
 
+
 def pip(virtualenv, cmd):
   run("%s/bin/pip %s" % (virtualenv, cmd))
+
 
 def pip_install(virtualenv, package, upgrade=False):
   cmd = "install -U %s" % package if upgrade else "install %s" % package

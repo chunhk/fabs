@@ -1,12 +1,10 @@
 import os
 
-from functools import partial
-
-from fabric.api import *
-from fabric.contrib import files
-
 from burlap import util
 from burlap.apt import Apt
+from fabric.api import *
+from fabric.contrib import files
+from functools import partial
 
 
 RESOURCE_PATH = os.path.dirname(os.path.realpath(__file__)) + "/resources"
@@ -14,10 +12,13 @@ RESOURCE_PATH = os.path.dirname(os.path.realpath(__file__)) + "/resources"
 apt = Apt(RESOURCE_PATH)
 name = "zookeeper"
 apt_repo_file = "cloudera.list"
+control = partial(util.initd_control, script="hadoop-zookeeper-server")
+
 
 @task
 def check_apt_repo():
   apt.check_apt_repo_task(apt_repo_file)
+
 
 @task
 def install_apt_repo():
@@ -26,13 +27,17 @@ def install_apt_repo():
     apt.install_apt_repo(apt_repo_file)
   else:
     print "apt repo %s already exists" % apt_repo_file
+
  
 @task
 def installed():
   if is_installed():
     print "%s is installed" % name
+    return True
   else:
     print "%s is not installed" % name
+    return False
+
 
 @task
 def install():
@@ -42,30 +47,33 @@ def install():
     apt.apt_install("hadoop-zookeeper-server")
     update_config()
     restart()
-  else:
-    print "zookeeper is already installed!"
+
 
 @task
 def update_config():
-  util.alt_put(RESOURCE_PATH + "/zoo.cfg", "/etc/zookeeper", use_sudo=True, owner="root", group="root")
+  util.remote_file(RESOURCE_PATH + "/zoo.cfg", "/etc/zookeeper", \
+      use_sudo=True, owner="root", group="root")
+
 
 @task
 def status():
   control(cmd="status")
 
+
 @task
 def start():
   control(cmd="start")
+
 
 @task
 def stop():
   control(cmd="stop")
 
+
 @task
 def restart():
   control(cmd="restart")
 
-control = partial(util.initd_control, script="hadoop-zookeeper-server")
 
 def is_installed():
   return files.exists("/etc/init.d/hadoop-zookeeper-server")

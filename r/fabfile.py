@@ -1,12 +1,10 @@
 import os
 
-from functools import partial
-
-from fabric.api import *
-from fabric.contrib import files
-
 from burlap import util
 from burlap.apt import Apt
+from fabric.api import *
+from fabric.contrib import files
+from functools import partial
 
 
 RESOURCE_PATH = os.path.dirname(os.path.realpath(__file__)) + "/resources"
@@ -15,10 +13,13 @@ apt = Apt(RESOURCE_PATH)
 name = "r"
 apt_repo_file = "cran.list"
 rstudio_url = "http://download2.rstudio.org/rstudio-server-0.97.247-amd64.deb"
+rstudio_control = partial(util.upstart_control, service="rstudio-server")
+
 
 @task
 def check_apt_repo():
   apt.check_apt_repo_task(apt_repo_file)
+
 
 @task
 def install_apt_repo():
@@ -28,6 +29,7 @@ def install_apt_repo():
     apt.apt_update()
   else:
     print "apt repo %s already exists" % apt_repo_file
+
  
 @task
 def installed():
@@ -36,10 +38,12 @@ def installed():
   else:
     print "%s is not installed" % name
 
+
 @task
 def install_all():
   install()
   install_rstudio()
+
 
 @task
 def install():
@@ -50,6 +54,7 @@ def install():
   else:
     print "%s is already installed!" % name
 
+
 @task
 def install_rstudio():
   rstudio_file = "/tmp/" + rstudio_url.split("/")[-1]
@@ -59,23 +64,26 @@ def install_rstudio():
   sudo("gdebi -n %s" % rstudio_file)
   print "rstudio default port is 8787"
 
+
 @task
 def status():
   rstudio_control(cmd="status")
+
 
 @task
 def start():
   rstudio_control(cmd="start")
 
+
 @task
 def stop():
   rstudio_control(cmd="stop")
+
 
 @task
 def restart():
   rstudio_control(cmd="restart")
 
-rstudio_control = partial(util.upstart_control, service="rstudio-server")
 
 def is_installed():
   return files.exists("/usr/bin/R")
