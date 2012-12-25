@@ -37,6 +37,11 @@ def installed():
     print "%s is not installed" % name
 
 @task
+def install_all():
+  install()
+  install_rstudio()
+
+@task
 def install():
   if not is_installed():
     install_apt_repo()
