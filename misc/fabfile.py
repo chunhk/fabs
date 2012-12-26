@@ -49,13 +49,13 @@ def install_haskell_platform():
 
 
 @task
-def install_golang():
+def install_golang(golang_url=GOLANG_URL):
   install_folder = "$HOME/software/go"
 
   with settings(warn_only=True):
     run("mkdir $HOME/software")
 
-  util.remote_archive(GOLANG_URL, install_folder)
+  util.remote_archive(golang_url, install_folder)
 
   # add to path
   run("echo '' >> $HOME/.bashrc" )
@@ -63,3 +63,10 @@ def install_golang():
   run("echo 'export GOROOT=%s' >> $HOME/.bashrc" % install_folder)
   run("echo 'export PATH=$PATH:$GOROOT/bin' >> $HOME/.bashrc")
   run("echo '# end' >> $HOME/.bashrc" )
+
+
+@task
+def install_nodejs():
+  apt.add_apt_repository("ppa:chris-lea/node.js")
+  apt.apt_update()
+  apt.apt_install("nodejs npm nodejs-dev")
