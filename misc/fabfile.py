@@ -7,6 +7,7 @@ from fabric.api import *
 
 LEIN_URL = "https://raw.github.com/technomancy/leiningen/preview/bin/lein"
 GOLANG_URL = "http://go.googlecode.com/files/go1.0.3.linux-amd64.tar.gz"
+LEVELDB_URL = "http://leveldb.googlecode.com/files/leveldb-1.7.0.tar.gz"
 RESOURCE_PATH = os.path.dirname(os.path.realpath(__file__)) + "/resources"
 
 apt = Apt(RESOURCE_PATH)
@@ -70,3 +71,15 @@ def install_nodejs():
   apt.add_apt_repository("ppa:chris-lea/node.js")
   apt.apt_update()
   apt.apt_install("nodejs npm nodejs-dev")
+
+
+@task
+def leveldb(leveldb_url=LEVELDB_URL):
+  with settings(warn_only=True):
+    run("mkdir $HOME/lib")
+
+  basename = os.path.basename(leveldb_url)
+  dest_path = "$HOME/lib/" + basename.replace(".tar.gz", "")
+  util.remote_archive(leveldb_url, dest_path)
+  with cd(dest_path):
+    run("make all")
