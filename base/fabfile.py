@@ -41,6 +41,20 @@ def authorize_sshkey(pub_ssh_key="~/.ssh/id_rsa.pub"):
   run("echo \"%s\" >> $HOME/.ssh/authorized_keys" % pubkey)
 
 
+# WARNING, this is more insecure, but allows automated provisioning
+@task
+def nopasswd_sudo(user, tmp_dir="/tmp"):
+  tmp_file = tmp_dir + "/" + util.string_md5(user)
+  sudo("echo '%s ALL=(ALL) NOPASSWD: ALL' > %s" % (user, tmp_file))
+  util.chmod(tmp_file, "440", use_sudo=True)
+  util.mv(tmp_file, "/etc/sudoers.d/%s" % user + "_fabric", use_sudo=True)
+
+
+@task
+def remove_nopasswd_sudo(user):
+  sudo("rm /etc/sudoers.d/%s" % user + "_fabric")
+
+
 @task
 def run_cmd(cmd):
   util.run_cmd(cmd)

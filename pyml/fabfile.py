@@ -16,7 +16,7 @@ apt = Apt(RESOURCE_PATH)
 
 
 @task
-def install_all(virtualenv=VIRTUAL_ENV, upgrade=False):
+def install_all(virtualenv=VIRTUAL_ENV, upgrade=False, interactive=False):
   install_virtualenv(virtualenv)
   install_numpy(virtualenv, upgrade)
   install_scipy(virtualenv, upgrade)
@@ -26,7 +26,10 @@ def install_all(virtualenv=VIRTUAL_ENV, upgrade=False):
   install_pytables(virtualenv, upgrade)
   install_scikit_learn(virtualenv, upgrade)
   install_ipython(virtualenv, upgrade)
-  install_ipython_notebook(virtualenv, upgrade)
+  if interactive:
+    install_ipython_notebook(virtualenv, upgrade)
+  else:
+    print "running in non-interactive mode, ipython notebook not installed"
 
 
 @task
