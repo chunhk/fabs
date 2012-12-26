@@ -18,10 +18,12 @@ def setup():
   apt.apt_install("git git-flow")
   apt.apt_install("gcc g++")
   apt.apt_install("p7zip unzip")
+  apt.apt_install("tmux")
   with settings(warn_only=True):
     run("mkdir $HOME/bin")
 
 
+# for curses interfaces, <tab> to navigate, <space> to select
 @task
 def upgrade():
   apt.apt_update()

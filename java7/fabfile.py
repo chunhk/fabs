@@ -18,6 +18,15 @@ def install():
   apt.add_apt_repository("ppa:webupd8team/java")
   apt.apt_update()
   apt.apt_install("oracle-java7-installer")
+  setup_java_home()
+
+
+@task
+def setup_java_home():
+  run("echo '' >> $HOME/.bashrc" )
+  run("echo '# automatically added by setup_java_home' >> $HOME/.bashrc" )
+  run("echo 'export JAVA_HOME=/usr/lib/jvm/java-7-oracle' >> $HOME/.bashrc")
+  run("echo '# end' >> $HOME/.bashrc" )
   
 
 @task

@@ -19,6 +19,12 @@ def install_rvm(install_ruby_version=None):
 
   apt.apt_install("build-essential openssl libreadline6 libreadline6-dev curl git zlib1g zlib1g-dev libssl-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt-dev autoconf libc6-dev ncurses-dev automake libtool bison subversion pkg-config")
 
+  run("echo '' >> $HOME/.profile")
+  run("echo '# grepped from .bash_profile' >> $HOME/.profile")
+  run("grep rvm $HOME/.bash_profile >> $HOME/.profile")
+  run("echo '# end' >> $HOME/.profile")
+  run("mv $HOME/.bash_profile $HOME/.bash_profile_`date +%Y%m%d%H%M`")
+
   if install_ruby_version:
     run("rvm install %s" % install_ruby_version)
 
@@ -36,6 +42,10 @@ def install_lein():
 @task
 def install_haskell_platform():
   apt.apt_install("haskell-platform haskell-platform-doc haskell-platform-prof")
+  run("echo '' >> $HOME/.bashrc" )
+  run("echo '# automatically added by install_haskell_platform' >> $HOME/.bashrc" )
+  run("echo 'export PATH=$PATH:$HOME/.cabal/bin' >> $HOME/.bashrc")
+  run("echo '# end' >> $HOME/.bashrc" )
 
 
 @task
