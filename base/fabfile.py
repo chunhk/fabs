@@ -32,6 +32,9 @@ def upgrade():
 
 @task
 def authorize_sshkey(pub_ssh_key="~/.ssh/id_rsa.pub"):
+  if not pub_ssh_key.endswith(".pub"):
+    raise RuntimeError("public sshkey should end with .pub, for safety")
+
   with open(os.path.expanduser(pub_ssh_key), 'r') as f:
     pubkey = f.read()
 
