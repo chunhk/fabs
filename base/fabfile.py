@@ -24,9 +24,10 @@ def setup():
 
 @task
 def upgrade():
+  apt.apt_update()
   apt.apt_upgrade()
 
-  
+
 @task
 def authorize_sshkey(pub_ssh_key="~/.ssh/id_rsa.pub"):
   with open(os.path.expanduser(pub_ssh_key), 'r') as f:
