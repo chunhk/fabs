@@ -8,6 +8,7 @@ from fabric.api import *
 LEIN_URL = "https://raw.github.com/technomancy/leiningen/preview/bin/lein"
 GOLANG_URL = "http://go.googlecode.com/files/go1.0.3.linux-amd64.tar.gz"
 LEVELDB_URL = "http://leveldb.googlecode.com/files/leveldb-1.7.0.tar.gz"
+SNAPPY_URL = "http://snappy.googlecode.com/files/snappy-1.0.5.tar.gz"
 RESOURCE_PATH = os.path.dirname(os.path.realpath(__file__)) + "/resources"
 
 apt = Apt(RESOURCE_PATH)
@@ -74,12 +75,55 @@ def install_nodejs():
 
 
 @task
-def leveldb(leveldb_url=LEVELDB_URL):
+def leveldb(leveldb_url=LEVELDB_URL, use_snappy=True):
+  snappy()
+
+  if util.dir_exists("$HOME/lib/leveldb"):
+    print "leveldb already exists in $HOME/lib/leveldb"
+    return
+
   with settings(warn_only=True):
     run("mkdir $HOME/lib")
 
-  basename = os.path.basename(leveldb_url)
-  dest_path = "$HOME/lib/" + basename.replace(".tar.gz", "")
+  basename = os.path.basename(leveldb_url).replace(".tar.gz", "")
+  dest_path = "$HOME/lib/" + basename
   util.remote_archive(leveldb_url, dest_path)
   with cd(dest_path):
-    run("make all")
+    if use_snappy:
+      run("CXXFLAGS=\"-I ~/lib/snappy -L ~/lib/snappy/.libs/\" make all")
+    else:
+      run("make all")
+
+  with cd("$HOME/lib"):
+    run("ln -s -f %s leveldb" % basename)
+
+  print "headers: $HOME/lib/leveldb/include/leveldb"
+  print "libs: $HOME/lib/leveldb"
+
+
+@task
+def snappy(snappy_url=SNAPPY_URL, install=False):
+  if util.dir_exists("$HOME/lib/snappy"):
+    print "snappy already exists in $HOME/lib/snappy"
+    return
+
+  with settings(warn_only=True):
+    run("mkdir $HOME/lib")
+
+  basename = os.path.basename(snappy_url).replace(".tar.gz", "")
+  dest_path = "$HOME/lib/" + basename
+  util.remote_archive(snappy_url, dest_path)
+  with cd(dest_path):
+    run("./configure")
+    run("make")
+    if install:
+      sudo("make install")
+
+  with cd("$HOME/lib"):
+    run("ln -s -f %s snappy" % basename)
+
+  with cd("$HOME/lib/%s" % basename):
+    run("./snappy_unittest")
+
+  print "headers: $HOME/lib/snappy"
+  print "libs: $HOME/lib/snappy/.lib"
