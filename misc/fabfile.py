@@ -5,9 +5,10 @@ from burlap.apt import Apt
 from fabric.api import *
 
 
-LEIN_URL = "https://raw.github.com/technomancy/leiningen/preview/bin/lein"
 GOLANG_URL = "http://go.googlecode.com/files/go1.0.3.linux-amd64.tar.gz"
+LEIN_URL = "https://raw.github.com/technomancy/leiningen/preview/bin/lein"
 LEVELDB_URL = "http://leveldb.googlecode.com/files/leveldb-1.7.0.tar.gz"
+SCALA_URL = "http://www.scala-lang.org/downloads/distrib/files/scala-2.9.2.deb"
 SNAPPY_URL = "http://snappy.googlecode.com/files/snappy-1.0.5.tar.gz"
 RESOURCE_PATH = os.path.dirname(os.path.realpath(__file__)) + "/resources"
 
@@ -127,3 +128,12 @@ def snappy(snappy_url=SNAPPY_URL, install=False):
 
   print "headers: $HOME/lib/snappy"
   print "libs: $HOME/lib/snappy/.lib"
+
+
+@task
+def install_scala(scala_url=SCALA_URL, tmp_dir="/tmp"):
+  basename = os.path.basename(scala_url)
+  with cd(tmp_dir):
+    run("wget %s -O %s" % (scala_url,basename))
+    apt.apt_install("libjansi-java")
+    sudo("dpkg -i %s" % basename)
