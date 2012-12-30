@@ -1,8 +1,0 @@
-if [ -f {{ pidfile }} ]
-then
-  PID=`cat {{ pidfile }}`
-  echo "IPython Notebook Server Already Running PID: $PID"
-else
-  nohup {{ virtualenv }}/bin/ipython notebook --profile=nbserver --port {{ port }} &> {{ logfile }} &
-  echo $! > {{ pidfile }}
-fi

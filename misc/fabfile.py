@@ -190,3 +190,8 @@ def install_vertx(vertx_url=VERTX_URL):
 
   with cd("$HOME/bin"):
     run("ln -s %s ." % "$HOME/software/vertx/bin/vertx")
+
+
+@task
+def install_octave():
+  apt.apt_install("octave3.2 octave3.2-headers octave3.2-info octave3.2-doc")

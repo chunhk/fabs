@@ -122,8 +122,7 @@ ipython_nb_pid = "%s/pid" % ipython_nb_root
 ipython_nb_cert = "%s/mycert.pem" % ipython_nb_root
 ipython_nb_log = "%s/log" % ipython_nb_root
 ipython_nb_notebook_path = "$HOME/ipython_notebooks"
-ipython_nb_start = "$HOME/bin/start_ipython_notebook"
-ipython_nb_stop = "$HOME/bin/stop_ipython_notebook"
+ipython_nb_bin = "$HOME/bin/ipython_notebook"
 
 @task
 def install_ipython_notebook(virtualenv=VIRTUAL_ENV, upgrade=False):
@@ -152,14 +151,10 @@ def setup_ipython_nb_paths():
 
 
 def setup_ipython_scripts(virtualenv=VIRTUAL_ENV, port=8987):
-  util.remote_template(RESOURCE_PATH + "/start_ipython_notebook.jinja2", \
+  util.remote_template(RESOURCE_PATH + "/ipython_notebook.jinja2", \
       variables={"virtualenv": virtualenv, "port": port, \
       "logfile": ipython_nb_log, "pidfile": ipython_nb_pid}, \
-      dest_file=ipython_nb_start, permissions="+x")
-
-  util.remote_template(RESOURCE_PATH + "/stop_ipython_notebook.jinja2", \
-      variables={"pidfile": ipython_nb_pid}, dest_file=ipython_nb_stop, \
-      permissions="+x")
+      dest_file=ipython_nb_bin, permissions="+x")
 
 
 def configure_ipython_notebook(virtualenv=VIRTUAL_ENV):
