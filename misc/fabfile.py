@@ -5,11 +5,15 @@ from burlap.apt import Apt
 from fabric.api import *
 
 
+AKKA_URL = "http://download.akka.io/downloads/akka-2.0.4.tgz"
 GOLANG_URL = "http://go.googlecode.com/files/go1.0.3.linux-amd64.tar.gz"
 LEIN_URL = "https://raw.github.com/technomancy/leiningen/preview/bin/lein"
 LEVELDB_URL = "http://leveldb.googlecode.com/files/leveldb-1.7.0.tar.gz"
+SBT_URL = "http://scalasbt.artifactoryonline.com/scalasbt/sbt-native-packages/org/scala-sbt/sbt//0.12.1/sbt.deb"
 SCALA_URL = "http://www.scala-lang.org/downloads/distrib/files/scala-2.9.2.deb"
 SNAPPY_URL = "http://snappy.googlecode.com/files/snappy-1.0.5.tar.gz"
+VERTX_URL = "http://vertx.io/downloads/vert.x-1.3.0.final.tar.gz"
+
 RESOURCE_PATH = os.path.dirname(os.path.realpath(__file__)) + "/resources"
 
 apt = Apt(RESOURCE_PATH)
@@ -137,3 +141,52 @@ def install_scala(scala_url=SCALA_URL, tmp_dir="/tmp"):
     run("wget %s -O %s" % (scala_url,basename))
     apt.apt_install("libjansi-java")
     sudo("dpkg -i %s" % basename)
+
+
+@task
+def install_akka(akka_url=AKKA_URL):
+  with settings(warn_only=True):
+    run("mkdir $HOME/software")
+    run("mkdir $HOME/bin")
+
+  basename = os.path.basename(akka_url).replace(".tgz", "")
+  install_folder = "$HOME/software/%s" % basename
+  akka_bin = "%s/bin/akka" % install_folder
+  util.remote_archive(akka_url, install_folder)
+
+  # set AKKA HOME to install directory
+  run("sed -i 's/^declare AKKA_HOME/#declare AKKA_HOME/g' %s" % \
+      akka_bin)
+  run("sed -i '/^#declare AKKA_HOME/ a\\AKKA_HOME=%s' %s" % \
+      ("$HOME/software/akka", akka_bin))
+  
+  with cd("$HOME/software"):
+    run("ln -s %s %s" % (basename, "akka"))
+
+  with cd("$HOME/bin"):
+    run("ln -s %s ." % "$HOME/software/akka/bin/akka")
+
+
+@task
+def install_sbt(sbt_url=SBT_URL, tmp_dir="/tmp"):
+  basename = os.path.basename(sbt_url)
+  with cd(tmp_dir):
+    run("wget %s -O %s" % (sbt_url,basename))
+    sudo("dpkg -i %s" % basename)
+
+
+@task
+def install_vertx(vertx_url=VERTX_URL):
+  with settings(warn_only=True):
+    run("mkdir $HOME/software")
+    run("mkdir $HOME/bin")
+
+  basename = os.path.basename(vertx_url).replace(".tar.gz", "")
+  install_folder = "$HOME/software/%s" % basename
+  util.remote_archive(vertx_url, install_folder)
+
+  with cd("$HOME/software"):
+    run("ln -s %s %s" % (basename, "vertx"))
+
+  with cd("$HOME/bin"):
+    run("ln -s %s ." % "$HOME/software/vertx/bin/vertx")
