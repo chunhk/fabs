@@ -187,17 +187,17 @@ def configure_ipython_notebook(virtualenv=VIRTUAL_ENV):
 
 @task
 def ipython_start(virtualenv=VIRTUAL_ENV):
-  run(ipython_nb_start, pty=False)
+  run(ipython_nb_bin + " start", pty=False)
 
 
 @task
 def ipython_stop(virtualenv=VIRTUAL_ENV):
-  run(ipython_nb_stop)
+  run(ipython_nb_bin + " stop")
 
 
 @task
 def ipython_status(virtualenv=VIRTUAL_ENV):
-  run("cat %s" % ipython_nb_pid)
+  run(ipython_nb_bin + " status")
 
 
 """
