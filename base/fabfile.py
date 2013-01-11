@@ -20,6 +20,7 @@ def setup():
   apt.apt_install("gcc g++")
   apt.apt_install("p7zip unzip")
   apt.apt_install("tmux")
+  apt.apt_install("ntp")
   with settings(warn_only=True):
     run("mkdir $HOME/bin")
 
