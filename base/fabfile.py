@@ -50,7 +50,7 @@ def authorize_sshkey(user=env.user, pub_ssh_key="~/.ssh/id_rsa.pub"):
     run("echo \"%s\" >> $HOME/.ssh/authorized_keys" % pubkey)
   else:
     sudo("echo \"%s\" >> /home/%s/.ssh/authorized_keys" % (pubkey,user))
-    sudo("chown -R %s:%s /home/.ssh" % (user,user))
+    sudo("chown -R %s:%s /home/%s/.ssh" % (user,user,user))
 
 
 # WARNING, this is more insecure, but allows automated provisioning
