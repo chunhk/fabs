@@ -33,7 +33,7 @@ def upgrade():
 
 
 @task
-def authorize_sshkey(pub_ssh_key="~/.ssh/id_rsa.pub"):
+def authorize_sshkey(user=env.user, pub_ssh_key="~/.ssh/id_rsa.pub"):
   if not pub_ssh_key.endswith(".pub"):
     raise RuntimeError("public sshkey should end with .pub, for safety")
 
@@ -41,9 +41,16 @@ def authorize_sshkey(pub_ssh_key="~/.ssh/id_rsa.pub"):
     pubkey = f.read()
 
   with settings(warn_only=True):
-    run("mkdir $HOME/.ssh")
+    if user == env.user:
+      run("mkdir $HOME/.ssh")
+    else:
+      sudo("mkdir /home/%s/.ssh" % user)
 
-  run("echo \"%s\" >> $HOME/.ssh/authorized_keys" % pubkey)
+  if user == env.user:
+    run("echo \"%s\" >> $HOME/.ssh/authorized_keys" % pubkey)
+  else:
+    sudo("echo \"%s\" >> /home/%s/.ssh/authorized_keys" % (pubkey,user))
+    sudo("chown -R %s:%s /home/.ssh" % (user,user))
 
 
 # WARNING, this is more insecure, but allows automated provisioning
