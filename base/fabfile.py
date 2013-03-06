@@ -38,7 +38,7 @@ def authorize_sshkey(user=env.user, pub_ssh_key="~/.ssh/id_rsa.pub"):
     raise RuntimeError("public sshkey should end with .pub, for safety")
 
   with open(os.path.expanduser(pub_ssh_key), 'r') as f:
-    pubkey = f.read()
+    pubkey = f.read().strip()
 
   with settings(warn_only=True):
     if user == env.user:
