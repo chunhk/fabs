@@ -185,6 +185,12 @@ def install_sbt(sbt_url=SBT_URL, tmp_dir="/tmp"):
 
 
 @task
+def install_giter8():
+  run("curl https://raw.github.com/n8han/conscript/master/setup.sh | sh")
+  run("cs n8han/giter8")
+
+
+@task
 def install_vertx(vertx_url=VERTX_URL):
   with settings(warn_only=True):
     run("mkdir $HOME/software")
