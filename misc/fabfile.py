@@ -9,8 +9,8 @@ AKKA_URL = "http://download.akka.io/downloads/akka-2.0.4.tgz"
 GOLANG_URL = "http://go.googlecode.com/files/go1.0.3.linux-amd64.tar.gz"
 LEIN_URL = "https://raw.github.com/technomancy/leiningen/preview/bin/lein"
 LEVELDB_URL = "http://leveldb.googlecode.com/files/leveldb-1.7.0.tar.gz"
-SBT_URL = "http://scalasbt.artifactoryonline.com/scalasbt/sbt-native-packages/org/scala-sbt/sbt//0.12.1/sbt.deb"
-SCALA_URL = "http://www.scala-lang.org/downloads/distrib/files/scala-2.9.2.deb"
+SBT_URL = "http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch//0.12.2/sbt-launch.jar"
+SCALA_URL = "http://www.scala-lang.org/downloads/distrib/files/scala-2.10.0.tgz"
 SNAPPY_URL = "http://snappy.googlecode.com/files/snappy-1.0.5.tar.gz"
 VERTX_URL = "http://vertx.io/downloads/vert.x-1.3.0.final.tar.gz"
 
@@ -135,13 +135,19 @@ def snappy(snappy_url=SNAPPY_URL, install=False):
 
 
 @task
-def install_scala(scala_url=SCALA_URL, tmp_dir="/tmp"):
-  basename = os.path.basename(scala_url)
-  with cd(tmp_dir):
-    run("wget %s -O %s" % (scala_url,basename))
-    apt.apt_install("libjansi-java")
-    sudo("dpkg -i %s" % basename)
+def install_scala(scala_url=SCALA_URL, tmp_dir="/tmp", \
+    install_path="/usr/local/lib", setup_path=True):
+  basename = os.path.basename(scala_url).replace(".tgz", "")
+  remote_name = install_path + "/" + basename
+  scala_path = install_path + "/scala"
+  util.remote_archive(scala_url, remote_name, use_sudo=True, \
+      hash_file=False, owner="root", group="root")
 
+  with cd(install_path):
+    sudo("ln -s -f %s scala" % remote_name)
+
+  if setup_path:
+    run('echo "export PATH=$PATH:%s/bin" >> $HOME/.profile' % scala_path)
 
 @task
 def install_akka(akka_url=AKKA_URL):
@@ -169,10 +175,13 @@ def install_akka(akka_url=AKKA_URL):
 
 @task
 def install_sbt(sbt_url=SBT_URL, tmp_dir="/tmp"):
-  basename = os.path.basename(sbt_url)
-  with cd(tmp_dir):
-    run("wget %s -O %s" % (sbt_url,basename))
-    sudo("dpkg -i %s" % basename)
+  with settings(warn_only=True):
+    run("mkdir $HOME/software")
+    run("mkdir $HOME/bin")
+
+  util.remote_file(sbt_url, "$HOME/software", backup=False)
+  util.remote_file(RESOURCE_PATH + "/sbt", "$HOME/bin", backup=False,
+      permissions="755")
 
 
 @task

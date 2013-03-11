@@ -6,7 +6,7 @@ from fabric.api import *
 
 
 RESOURCE_PATH = os.path.dirname(os.path.realpath(__file__)) + "/resources"
-MAVEN_URL = "http://apache.cs.utah.edu/maven/maven-3/3.0.4/binaries/apache-maven-3.0.4-bin.tar.gz"
+MAVEN_URL = "http://download.nextag.com/apache/maven/maven-3/3.0.5/binaries/apache-maven-3.0.5-bin.tar.gz"
 
 apt = Apt(RESOURCE_PATH)
 
@@ -30,11 +30,16 @@ def setup_java_home():
   
 
 @task
-def install_maven():
+def install_maven(maven_url=MAVEN_URL):
   with settings(warn_only=True):
     run("mkdir $HOME/software")
 
-  util.remote_archive(MAVEN_URL, "$HOME/software/apache-maven")
+  basename = os.path.basename(maven_url).replace("-bin.tar.gz", "")
+  remote_name = "$HOME/software/" + basename
+  util.remote_archive(maven_url, remote_name)
+
+  with cd("$HOME/software"):
+    run("ln -s %s apache-maven" % basename)
 
   with cd("$HOME/bin"):
     run("ln -s -f $HOME/software/apache-maven/bin/mvn .")
