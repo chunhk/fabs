@@ -210,3 +210,16 @@ def install_vertx(vertx_url=VERTX_URL):
 @task
 def install_octave():
   apt.apt_install("octave3.2 octave3.2-headers octave3.2-info octave3.2-doc")
+
+
+@task
+def diff(local_file, remote_file):
+  with settings(warn_only=True):
+    local("/bin/bash -c \"diff %s <(ssh %s %s@%s 'cat %s')\"" % \
+        (local_file, ("-i %s" % env.key_filename[0] if env.key_filename else ""), env.user, env.host, remote_file))
+
+
+@task
+def dir_cmp(local_dir, remote_dir):
+  local('rsync -rvnc --delete -e "ssh %s" %s@%s:%s %s' %
+      (("-i %s" % env.key_filename[0] if env.key_filename else ""), env.user, env.host, remote_dir, local_dir))
