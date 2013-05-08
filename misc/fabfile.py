@@ -223,3 +223,15 @@ def diff(local_file, remote_file):
 def dir_cmp(local_dir, remote_dir):
   local('rsync -rvnc --delete -e "ssh %s" %s@%s:%s %s' %
       (("-i %s" % env.key_filename[0] if env.key_filename else ""), env.user, env.host, remote_dir, local_dir))
+
+
+@task
+def install_drake():
+  with cd("$HOME/software"):
+    run("git clone git://github.com/Factual/drake.git")
+
+  with cd("$HOME/software/drake"):
+    run("lein uberjar")
+
+  util.remote_file(RESOURCE_PATH + "/drake", "$HOME/bin", backup=False,
+      permissions="755")
