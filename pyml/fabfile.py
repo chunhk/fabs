@@ -25,6 +25,7 @@ def install_all(virtualenv=VIRTUAL_ENV, upgrade=False, interactive=False):
   install_statsmodels(virtualenv, upgrade)
   install_pytables(virtualenv, upgrade)
   install_scikit_learn(virtualenv, upgrade)
+  install_nltk(virtualenv, upgrade)
   install_ipython(virtualenv, upgrade)
   if interactive:
     install_ipython_notebook(virtualenv, upgrade)
@@ -198,6 +199,11 @@ def ipython_stop(virtualenv=VIRTUAL_ENV):
 @task
 def ipython_status(virtualenv=VIRTUAL_ENV):
   run(ipython_nb_bin + " status")
+
+@task
+def install_nltk(virtualenv=VIRTUAL_ENV, upgrade=False):
+  pip_install(virtualenv, "pyyaml", upgrade=upgrade)
+  pip_install(virtualenv, "nltk", upgrade=upgrade)
 
 
 """

@@ -12,7 +12,7 @@ apt = Apt(RESOURCE_PATH)
 
 name = "r"
 apt_repo_file = "cran.list"
-rstudio_url = "http://download2.rstudio.org/rstudio-server-0.97.247-amd64.deb"
+rstudio_url = "http://download2.rstudio.org/rstudio-server-0.97.551-amd64.deb"
 rstudio_control = partial(util.upstart_control, service="rstudio-server")
 
 

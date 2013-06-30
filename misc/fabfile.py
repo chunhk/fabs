@@ -5,14 +5,19 @@ from burlap.apt import Apt
 from fabric.api import *
 
 
-AKKA_URL = "http://download.akka.io/downloads/akka-2.0.4.tgz"
-GOLANG_URL = "http://go.googlecode.com/files/go1.0.3.linux-amd64.tar.gz"
+AKKA_URL = "http://download.akka.io/downloads/akka-2.1.4.tgz"
+GOLANG_URL = "https://go.googlecode.com/files/go1.1.1.linux-amd64.tar.gz"
 LEIN_URL = "https://raw.github.com/technomancy/leiningen/preview/bin/lein"
 LEVELDB_URL = "http://leveldb.googlecode.com/files/leveldb-1.7.0.tar.gz"
-SBT_URL = "http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch//0.12.2/sbt-launch.jar"
-SCALA_URL = "http://www.scala-lang.org/downloads/distrib/files/scala-2.10.0.tgz"
+SBT_URL = "http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch//0.12.4/sbt-launch.jar"
+SCALA_URL = "http://www.scala-lang.org/downloads/distrib/files/scala-2.10.2.tgz"
 SNAPPY_URL = "http://snappy.googlecode.com/files/snappy-1.0.5.tar.gz"
-VERTX_URL = "http://vertx.io/downloads/vert.x-1.3.0.final.tar.gz"
+VERTX_URL = "http://vert-x.github.io/vertx-downloads/downloads/vert.x-1.3.1.final.tar.gz"
+
+GHC_VERSION = "ghc-7.6.3"
+GHC_URL = "http://www.haskell.org/ghc/dist/7.6.3/ghc-7.6.3-x86_64-unknown-linux.tar.bz2"
+HASKELL_PLATFORM_VERSION ="haskell-platform-2013.2.0.0"
+HASKELL_PLATFORM_URL = "http://lambda.haskell.org/platform/download/2013.2.0.0/haskell-platform-2013.2.0.0.tar.gz"
 
 RESOURCE_PATH = os.path.dirname(os.path.realpath(__file__)) + "/resources"
 
@@ -47,6 +52,38 @@ def install_lein():
 
 
 @task
+def install_ghc_from_source(ghc_url=GHC_URL, ghc_version=GHC_VERSION):
+  apt.apt_install("libgmp3c2 libgmp3-dev")
+
+  if not util.dir_exists("$HOME/builds"):
+    util.mkdir("$HOME/builds")
+
+  build_dir = "$HOME/builds/" + ghc_version
+  util.remote_archive(ghc_url, build_dir)
+  with cd(build_dir):
+    run("./configure --prefix=/usr/local")
+    sudo("make install")
+
+
+@task
+def install_haskell_platform_from_source( \
+    platform_url=HASKELL_PLATFORM_URL, \
+    platform_version=HASKELL_PLATFORM_VERSION):
+
+  apt.apt_install("mesa-common-dev freeglut3-dev")
+
+  if not util.dir_exists("$HOME/builds"):
+    util.mkdir("$HOME/builds")
+
+  build_dir = "$HOME/builds/" + platform_version
+  util.remote_archive(platform_url, build_dir)
+  with cd(build_dir):
+    run("./configure --prefix=/usr/local")
+    run("make")
+    sudo("make install")
+
+
+@task
 def install_haskell_platform():
   apt.apt_install("haskell-platform haskell-platform-doc haskell-platform-prof")
   run("echo '' >> $HOME/.bashrc" )
@@ -76,7 +113,7 @@ def install_golang(golang_url=GOLANG_URL):
 def install_nodejs():
   apt.add_apt_repository("ppa:chris-lea/node.js")
   apt.apt_update()
-  apt.apt_install("nodejs npm nodejs-dev")
+  apt.apt_install("nodejs")
 
 
 @task
