@@ -13,9 +13,6 @@ apt = Apt(RESOURCE_PATH)
 @task
 def setup():
   apt.apt_update()
-  # beginning in ubuntu 12.10, software-properties-common is the new pkg
-  apt.apt_install("python-software-properties")
-  apt.apt_install("python-virtualenv")
   apt.apt_install("git git-flow")
   apt.apt_install("gcc g++")
   apt.apt_install("p7zip unzip")

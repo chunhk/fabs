@@ -13,7 +13,7 @@ start)
     echo "IPython Notebook Server Already Running PID: $PID"
   else
     echo "Starting IPython Notebook Server on port: $PORT"
-    nohup {{ virtualenv }}/bin/ipython notebook --profile=nbserver --port $PORT &> {{ logfile }} &
+    nohup {{ virtualenv }}/bin/jupyter notebook --port $PORT --config {{ config }}  &> {{ logfile }} &
     echo $! > $PID_FILE
   fi
   ;;

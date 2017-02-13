@@ -9,7 +9,7 @@ from functools import partial
 from string import Template as StringTemplate
 
 
-VIRTUAL_ENV = "$HOME/pyml"
+VIRTUAL_ENV = "$HOME/pyml27"
 RESOURCE_PATH = os.path.dirname(os.path.realpath(__file__)) + "/resources"
 
 apt = Apt(RESOURCE_PATH)
@@ -88,7 +88,7 @@ def install_statsmodels(virtualenv=VIRTUAL_ENV, upgrade=False):
 @task
 def install_pytables(virtualenv=VIRTUAL_ENV, upgrade=False):
   install_base()
-  apt.apt_install("libhdf5-serial-1.8.4 libhdf5-serial-dev")
+  apt.apt_install("libhdf5-10 libhdf5-dev libhdf5-doc")
   pip_install(virtualenv, "numexpr", upgrade=upgrade)
   pip_install(virtualenv, "cython", upgrade=upgrade)
   pip_install(virtualenv, "tables", upgrade=upgrade)
@@ -124,25 +124,19 @@ ipython_nb_cert = "%s/mycert.pem" % ipython_nb_root
 ipython_nb_log = "%s/log" % ipython_nb_root
 ipython_nb_notebook_path = "$HOME/ipython_notebooks"
 ipython_nb_bin = "$HOME/bin/ipython_notebook"
+ipython_config = "%s/ipython_notebook_config.py" % ipython_nb_root
 
 @task
 def install_ipython_notebook(virtualenv=VIRTUAL_ENV, upgrade=False):
   apt.apt_install("libzmq1 libzmq-dev libzmq-dbg")
   pip_install(virtualenv, "tornado", upgrade=upgrade)
   pip_install(virtualenv, "pyzmq", upgrade=upgrade)
-  install_ipython_mathjax(virtualenv)
+  pip_install(virtualenv, "jupyter", upgrade=upgrade)
+  pip_install(virtualenv, "ipykernel", upgrade=upgrade)
+  run("%s/bin/python -m ipykernel install --user --name pyml2.7" % virtualenv)
   setup_ipython_nb_paths()
   setup_ipython_scripts(virtualenv)
   configure_ipython_notebook()
-
-
-def install_ipython_mathjax(virtualenv=VIRTUAL_ENV):
-  script = "from IPython.external.mathjax import install_mathjax\ninstall_mathjax()"
-  h = hashlib.md5()
-  h.update(script)
-  scriptname = "$HOME/%s" % h.hexdigest()
-  run("printf \"%s\" > %s" % (script,scriptname))
-  run("%s/bin/python %s" % (virtualenv, scriptname))
 
 
 def setup_ipython_nb_paths():
@@ -154,25 +148,24 @@ def setup_ipython_nb_paths():
 def setup_ipython_scripts(virtualenv=VIRTUAL_ENV, port=8987):
   util.remote_template(RESOURCE_PATH + "/ipython_notebook.jinja2", \
       variables={"virtualenv": virtualenv, "port": port, \
-      "logfile": ipython_nb_log, "pidfile": ipython_nb_pid}, \
+      "logfile": ipython_nb_log, "pidfile": ipython_nb_pid,
+      "config": ipython_config}, \
       dest_file=ipython_nb_bin, permissions="+x")
 
 
 def configure_ipython_notebook(virtualenv=VIRTUAL_ENV):
-  ipython_config = "$HOME/.ipython/profile_nbserver/ipython_notebook_config.py"
   if not files.exists(ipython_config):
     home_path = util.home_path()
     run("openssl req -x509 -nodes -days 1095 -newkey rsa:1024 -keyout %s -out %s" % (ipython_nb_cert, ipython_nb_cert))
-    run("%s/bin/ipython profile create nbserver" % virtualenv)
-    run("echo \"c.IPKernelApp.pylab = 'inline'\" >> %s" % ipython_config)
 
     run("echo \"c.NotebookApp.certfile = u'%s'\" >> %s" % \
         (StringTemplate(ipython_nb_cert).substitute(HOME=home_path), \
         ipython_config))
 
-    run("echo \"c.NotebookApp.ip = '*'\" >> %s" % ipython_config)
+    # Change to localhost if you want to keep it private.
+    run("echo \"c.NotebookApp.ip = '0.0.0.0'\" >> %s" % ipython_config)
     run("echo \"c.NotebookApp.open_browser = False\" >> %s" % ipython_config)
-    run("echo \"c.NotebookManager.notebook_dir = u'%s'\" >> %s" % \
+    run("echo \"c.NotebookApp.notebook_dir = u'%s'\" >> %s" % \
         (StringTemplate(ipython_nb_notebook_path).substitute(HOME=home_path), \
         ipython_config))
 

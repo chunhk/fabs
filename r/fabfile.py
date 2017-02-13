@@ -12,8 +12,10 @@ apt = Apt(RESOURCE_PATH)
 
 name = "r"
 apt_repo_file = "cran.list"
-rstudio_url = "http://download2.rstudio.org/rstudio-server-0.97.551-amd64.deb"
-rstudio_control = partial(util.upstart_control, service="rstudio-server")
+rstudio_url = "https://download2.rstudio.org/rstudio-server-1.0.136-amd64.deb"
+
+def rstudio_control(cmd):
+  sudo("service rstudio-server %s" % cmd)
 
 
 @task
@@ -87,6 +89,3 @@ def restart():
 
 def is_installed():
   return files.exists("/usr/bin/R")
-
-def is_rstudio_installed():
-  return True
