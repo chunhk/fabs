@@ -121,3 +121,17 @@ def install_bazel():
   sudo("curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -")
   apt.apt_update()
   apt.apt_install("bazel")
+
+
+@task
+def install_docker():
+  docker_apt_repo_file = "docker.list"
+  if not apt.check_apt_repo(docker_apt_repo_file):
+    sudo("sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D")
+    apt.install_apt_repo(docker_apt_repo_file)
+    apt.apt_update()
+  else:
+    print "apt repo %s already exists" % docker_apt_repo_file
+
+  run("apt-cache policy docker-engine")
+  apt.apt_install("docker-engine")
