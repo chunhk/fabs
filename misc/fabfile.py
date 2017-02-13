@@ -113,3 +113,11 @@ def install_drake():
 
   util.remote_file(RESOURCE_PATH + "/drake", "$HOME/bin", backup=False,
       permissions="755")
+
+
+@task
+def install_bazel():
+  sudo("echo \"deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8\" | sudo tee /etc/apt/sources.list.d/bazel.list")
+  sudo("curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -")
+  apt.apt_update()
+  apt.apt_install("bazel")
