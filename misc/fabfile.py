@@ -135,3 +135,8 @@ def install_docker():
 
   run("apt-cache policy docker-engine")
   apt.apt_install("docker-engine")
+
+
+@task
+def install_rustup():
+  run("curl https://sh.rustup.rs -sSf | sh -s -- -y")
