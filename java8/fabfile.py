@@ -7,6 +7,8 @@ from fabric.api import *
 
 RESOURCE_PATH = os.path.dirname(os.path.realpath(__file__)) + "/resources"
 MAVEN_URL = "http://mirrors.koehn.com/apache/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz"
+ECLIPSE_URL = "http://mirror.cc.columbia.edu/pub/software/eclipse/technology/epp/downloads/release/neon/2/eclipse-java-neon-2-linux-gtk-x86_64.tar.gz"
+ECLIM_URL = "https://github.com/ervandew/eclim/releases/download/2.6.0/eclim_2.6.0.jar"
 
 apt = Apt(RESOURCE_PATH)
 
@@ -44,3 +46,21 @@ def install_maven(maven_url=MAVEN_URL):
   with cd("$HOME/bin"):
     run("ln -s -f $HOME/software/apache-maven/bin/mvn .")
 
+
+@task
+def install_eclim(eclipse_url=ECLIPSE_URL, eclim_url=ECLIM_URL):
+  apt.apt_install("xvfb build-essential")
+  with settings(warn_only=True):
+    run("mkdir $HOME/software")
+
+  eclipse_install_folder = "$HOME/software/eclipse"
+  util.remote_archive(eclipse_url, eclipse_install_folder)
+
+  eclim_install_folder = "$HOME/software/eclim"
+  with settings(warn_only=True):
+    run("mkdir %s" % eclim_install_folder)
+
+  with cd(eclim_install_folder):
+    run("wget %s" % eclim_url)
+
+  run("java -Dvim.files=$HOME/.vim -Declipse.home=$HOME/software/eclipse -jar $HOME/software/eclim/eclim_2.6.0.jar install")
