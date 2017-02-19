@@ -5,6 +5,7 @@ from burlap.apt import Apt
 from fabric.api import *
 
 
+GOLANG_URL = "https://storage.googleapis.com/golang/go1.8.linux-amd64.tar.gz"
 LEIN_URL = "https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein"
 VERTX_URL = "https://bintray.com/artifact/download/vertx/downloads/vert.x-3.3.3-full.tar.gz"
 
@@ -41,10 +42,18 @@ def install_haskell():
 
 
 @task
-def install_golang():
-  apt.add_apt_repository("ppa:ubuntu-lxc/lxd-stable")
-  apt.apt_update()
-  apt.apt_install("golang")
+def install_golang(golang_url=GOLANG_URL, setup_profile=True):
+  basename = os.path.basename(golang_url).replace(".tar.gz", "")
+  install_folder = "/usr/local/%s" % basename
+  util.remote_archive(golang_url, install_folder, use_sudo=True)
+
+  with cd("/usr/local"):
+    sudo("ln -s %s go" % basename)
+
+  if setup_profile:
+    run("echo '\n# Setup golang path variables' >> $HOME/.profile")
+    run("echo 'export GOROOT=/usr/local/go' >> $HOME/.profile")
+    run("echo 'export PATH=$PATH:$GOROOT/bin' >> $HOME/.profile")
 
 
 @task
@@ -140,3 +149,8 @@ def install_docker():
 @task
 def install_rustup():
   run("curl https://sh.rustup.rs -sSf | sh -s -- -y")
+
+
+@task
+def install_clang():
+  apt.apt_install("clang clang-3.8 clang-3.8-doc clang-3.8-examples clang-tidy-3.8 libclang-3.8-dev libclang-common-3.8-dev libclang1-3.8 libclang1-3.8-dbg iwyu")
