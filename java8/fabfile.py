@@ -27,7 +27,7 @@ def install():
 def setup_java_home():
   run("echo '' >> $HOME/.bashrc" )
   run("echo '# automatically added by setup_java_home' >> $HOME/.bashrc" )
-  run("echo 'export JAVA_HOME=/usr/lib/jvm/java-7-oracle' >> $HOME/.bashrc")
+  run("echo 'export JAVA_HOME=/usr/lib/jvm/java-8-oracle' >> $HOME/.bashrc")
   run("echo '# end' >> $HOME/.bashrc" )
   
 
