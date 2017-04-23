@@ -30,15 +30,15 @@ def install_apt_repo():
     apt.install_apt_repo(apt_repo_file)
     apt.apt_update()
   else:
-    print "apt repo %s already exists" % apt_repo_file
+    print("apt repo %s already exists" % apt_repo_file)
 
  
 @task
 def installed():
   if is_installed():
-    print "%s is installed" % name
+    print("%s is installed" % name)
   else:
-    print "%s is not installed" % name
+    print("%s is not installed" % name)
 
 
 @task
@@ -54,7 +54,7 @@ def install():
     apt.apt_install("r-recommended")
     apt.apt_install("r-base-dev")
   else:
-    print "%s is already installed!" % name
+    print("%s is already installed!" % name)
 
 
 @task
@@ -64,7 +64,7 @@ def install_rstudio():
   apt.apt_install("libapparmor1")
   sudo("wget -O %s %s" % (rstudio_file, rstudio_url))
   sudo("gdebi -n %s" % rstudio_file)
-  print "rstudio default port is 8787"
+  print("rstudio default port is 8787")
 
 
 @task

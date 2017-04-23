@@ -9,7 +9,7 @@ from functools import partial
 from string import Template as StringTemplate
 
 
-VIRTUAL_ENV = "$HOME/venv/pyml27"
+VIRTUAL_ENV = "$HOME/venv/pyml3"
 RESOURCE_PATH = os.path.dirname(os.path.realpath(__file__)) + "/resources"
 
 apt = Apt(RESOURCE_PATH)
@@ -46,7 +46,7 @@ def is_virtualenv_installed(virtualenv=VIRTUAL_ENV):
 @task
 def install_virtualenv(virtualenv=VIRTUAL_ENV):
   if not is_virtualenv_installed():
-    run("virtualenv %s" % VIRTUAL_ENV)
+    run("python3 -m venv %s" % VIRTUAL_ENV)
     pip_install(virtualenv, "pip", upgrade=True)
 
 
@@ -57,7 +57,7 @@ def installed_site_packages(virtualenv=VIRTUAL_ENV):
  
 @task
 def install_base(virtualenv=VIRTUAL_ENV):
-  apt.apt_install("gcc g++ python-dev")
+  apt.apt_install("gcc g++ python3-dev")
 
 
 @task
@@ -118,12 +118,12 @@ http://ipython.org/ipython-doc/dev/interactive/htmlnotebook.html
 http://ipython.org/ipython-doc/dev/install/install.html#installnotebook
 """
 
-ipython_nb_root = "$HOME/.ipython_nb"
+ipython_nb_root = "$HOME/.ipython3_nb"
 ipython_nb_pid = "%s/pid" % ipython_nb_root
 ipython_nb_cert = "%s/mycert.pem" % ipython_nb_root
 ipython_nb_log = "%s/log" % ipython_nb_root
-ipython_nb_notebook_path = "$HOME/ipython_notebooks"
-ipython_nb_bin = "$HOME/bin/ipython_notebook"
+ipython_nb_notebook_path = "$HOME/ipython3_notebooks"
+ipython_nb_bin = "$HOME/bin/ipython3_notebook"
 ipython_config = "%s/ipython_notebook_config.py" % ipython_nb_root
 
 @task
@@ -133,7 +133,7 @@ def install_ipython_notebook(virtualenv=VIRTUAL_ENV, upgrade=False):
   pip_install(virtualenv, "pyzmq", upgrade=upgrade)
   pip_install(virtualenv, "jupyter", upgrade=upgrade)
   pip_install(virtualenv, "ipykernel", upgrade=upgrade)
-  run("%s/bin/python -m ipykernel install --user --name pyml2.7" % virtualenv)
+  run("%s/bin/python -m ipykernel install --user --name pyml3" % virtualenv)
   setup_ipython_nb_paths()
   setup_ipython_scripts(virtualenv)
   configure_ipython_notebook()

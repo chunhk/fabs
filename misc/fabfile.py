@@ -140,7 +140,7 @@ def install_docker():
     apt.install_apt_repo(docker_apt_repo_file)
     apt.apt_update()
   else:
-    print "apt repo %s already exists" % docker_apt_repo_file
+    print("apt repo %s already exists" % docker_apt_repo_file)
 
   run("apt-cache policy docker-engine")
   apt.apt_install("docker-engine")

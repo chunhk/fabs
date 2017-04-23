@@ -1,0 +1,43 @@
+#!/bin/bash
+
+set -e
+
+PID_FILE={{ pidfile }}
+PORT={{ port }}
+
+case $1 in
+start)
+  if [ -f $PID_FILE ]
+  then
+    PID=`cat $PID_FILE`
+    echo "IPython Notebook Server Already Running PID: $PID"
+  else
+    echo "Starting IPython Notebook Server on port: $PORT"
+    nohup {{ virtualenv }}/bin/jupyter notebook --port $PORT --config {{ config }}  &> {{ logfile }} &
+    echo $! > $PID_FILE
+  fi
+  ;;
+stop)
+  if [ -f $PID_FILE ]
+  then
+    echo "Stopping IPython Notebook Server"
+    PID=`cat $PID_FILE`
+    kill $PID
+    rm $PID_FILE
+  else
+    echo "IPython Notebook server not running"
+  fi
+  ;;
+status)
+  if [ -f $PID_FILE ]
+  then
+    PID=`cat $PID_FILE`
+    echo "IPython Notebook Server running PID: $PID"
+  else
+    echo "IPython Notebook Server not running"
+  fi
+  ;;
+*)
+  echo "options start|stop|status"
+  ;;
+esac

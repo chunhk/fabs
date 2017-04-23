@@ -17,9 +17,9 @@ control = partial(util.initd_control, script="monit")
 @task
 def installed():
   if is_installed():
-    print "%s is installed" % name
+    print("%s is installed" % name)
   else:
-    print "%s is not installed" % name
+    print("%s is not installed" % name)
 
 
 @task
@@ -29,7 +29,7 @@ def install():
     update_config()
     restart()
   else:
-    print "%s already installed" % name
+    print("%s already installed" % name)
 
 
 @task

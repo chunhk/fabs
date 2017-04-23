@@ -38,4 +38,4 @@ def install_guest_additions(iso=None):
   sudo("umount %s" % guest_addition_mnt)
   sudo("rmdir %s" % guest_addition_mnt)
   sudo("usermod -a -G vboxsf %s" % user)
-  print "you may need to logout and login for group changes to take effect"
+  print("you may need to logout and login for group changes to take effect")

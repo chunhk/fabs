@@ -26,16 +26,16 @@ def install_apt_repo():
     sudo("curl -s http://archive.cloudera.com/debian/archive.key | sudo apt-key add -")
     apt.install_apt_repo(apt_repo_file)
   else:
-    print "apt repo %s already exists" % apt_repo_file
+    print("apt repo %s already exists" % apt_repo_file)
 
  
 @task
 def installed():
   if is_installed():
-    print "%s is installed" % name
+    print("%s is installed" % name)
     return True
   else:
-    print "%s is not installed" % name
+    print("%s is not installed" % name)
     return False
 
 

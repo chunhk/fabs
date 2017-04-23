@@ -1,7 +1,7 @@
 #!/bin/bash
 
 FAB=$1
-FAB_CMD=~/venv/fabric-venv/bin/fab
+FAB_CMD=~/venv/fabric3-venv/bin/fab
 shift
 
 cd $FAB && $FAB_CMD $@
