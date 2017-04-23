@@ -198,6 +198,24 @@ def install_nltk(virtualenv=VIRTUAL_ENV, upgrade=False):
   pip_install(virtualenv, "pyyaml", upgrade=upgrade)
   pip_install(virtualenv, "nltk", upgrade=upgrade)
 
+@task
+def install_tensorflow(virtualenv=VIRTUAL_ENV):
+  pip_install(virtualenv, "numpy", upgrade=True)
+  pip_install(virtualenv, "wheel", upgrade=True)
+  pip_install(virtualenv, "six", upgrade=True)
+
+  if not files.exists("$HOME/dev/tensorflow/configure"):
+    with cd("$HOME/dev"):
+      run("git clone https://github.com/tensorflow/tensorflow")
+
+  with cd("$HOME/dev/tensorflow"):
+    run("git checkout r1.1")
+    run("bazel clean")
+    run("./configure")
+    run("bazel build --config=opt //tensorflow/tools/pip_package:build_pip_package")
+    run("bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg")
+    pip_install(virtualenv, "/tmp/tensorflow_pkg/tensorflow-1.1.0-cp35-cp35m-linux_x86_64.whl")
+
 
 """
 Helper Functions
