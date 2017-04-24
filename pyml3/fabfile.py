@@ -215,6 +215,7 @@ def install_tensorflow(virtualenv=VIRTUAL_ENV):
     run("bazel build --config=opt //tensorflow/tools/pip_package:build_pip_package")
     run("bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg")
     pip_install(virtualenv, "/tmp/tensorflow_pkg/tensorflow-1.1.0-cp35-cp35m-linux_x86_64.whl")
+    pip_install(virtualenv, "keras")
 
 @task
 def install_pytorch(virtualenv=VIRTUAL_ENV):
