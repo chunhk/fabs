@@ -216,6 +216,19 @@ def install_tensorflow(virtualenv=VIRTUAL_ENV):
     run("bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg")
     pip_install(virtualenv, "/tmp/tensorflow_pkg/tensorflow-1.1.0-cp35-cp35m-linux_x86_64.whl")
 
+@task
+def install_pytorch(virtualenv=VIRTUAL_ENV):
+  pip_install(virtualenv, "http://download.pytorch.org/whl/cu75/torch-0.1.11.post5-cp35-cp35m-linux_x86_64.whl")
+  pip_install(virtualenv, "torchvision", upgrade=True)
+
+@task
+def install_torch():
+  run("git clone https://github.com/torch/distro.git $HOME/dev/torch --recursive")
+
+  with cd("$HOME/dev/torch"):
+    run("bash install-deps")
+    run("./install.sh")
+
 
 """
 Helper Functions
